@@ -64,9 +64,20 @@ const UpdateTaskById = async (req, res, next) => {
     }
   });
 };
+const DeleteTaskById = async (req, res, next) => {
+  const { id } = req.body;
+  pool.query(queries.deleteTaskById, [id], (err, result) => {
+    if (err) {
+      res.status(400);
+      throw err;
+    }
+    res.status(200).json({ message: "successfully deleted task" });
+  });
+};
 module.exports = {
   GetAllTasks,
   GetTaskByE_Id,
   AddTask,
   UpdateTaskById,
+  DeleteTaskById,
 };

@@ -19,7 +19,7 @@ const GetEmployeeById = async (req, res, next) => {
 
 // Add a new employee
 const AddEmployee = async (req, res, next) => {
-  const { name, email, phone, hireDate, role } = req.body;
+  const { name, email, phone, hireDate, position } = req.body;
   // check if the employee already exists and if not, add the employee to table
   pool.query(queries.checkEmailExists, [email], (err, result) => {
     if (result.rows.length) {
@@ -31,26 +31,37 @@ const AddEmployee = async (req, res, next) => {
     // Add New Employee to table
     pool.query(
       queries.addEmployee,
-      [name, email, phone, hireDate, role],
+      [name, email, phone, hireDate, position],
       (err, result) => {
         if (err) throw err;
-        res.status(201).json(result.rows);
+        res.status(201).json({ message: "Added employee" });
       }
     );
   });
 };
 const UpdateEmployeeById = async (req, res, next) => {
-  // here id = task id
-  const { id, title, description, dueDate } = req.body;
+  const { id, name, email, phone, hireDate, position } = req.body;
+
+  let currId;
+
+  pool.query(queries.checkEmailExists, [email], (err, result) => {
+    if (err) throw err;
+    currId = result.rows[0]?.id;
+  });
+
+  if (currId && id !== currId) {
+    return res.status(400).json({ message: "Email already exists" });
+  }
+
   pool.query(
-    queries.updateTaskById,
-    [id, title, description, dueDate],
+    queries.updateEmployeeById,
+    [name, email, phone, hireDate, position, id],
     (err, result) => {
       if (err) {
         res.status(400);
         throw err;
       }
-      res.status(200).json({ message: "Task updated successfully" });
+      res.status(200).json({ message: "employee updated successfully" });
     }
   );
 };
